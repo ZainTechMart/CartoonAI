@@ -1,5 +1,4 @@
-export default async function handler(req, res) {
-  // CORS
+module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -16,7 +15,6 @@ export default async function handler(req, res) {
   }
 
   try {
-    // API key must come from Vercel Environment Variables
     const apiKey = process.env.AGNES_API_KEY;
 
     if (!apiKey) {
@@ -26,9 +24,9 @@ export default async function handler(req, res) {
       });
     }
 
-    const body = req.body || {};
-
-    const prompt = String(body.prompt || "").trim();
+    const prompt = String(
+      req.body?.prompt || ""
+    ).trim();
 
     if (!prompt) {
       return res.status(400).json({
@@ -37,32 +35,40 @@ export default async function handler(req, res) {
       });
     }
 
-    // Keep first test simple: 16:9, about 5 seconds
-    const width = 1152;
-    const height = 768;
-    const numFrames = 121;
-    const frameRate = 24;
-
     const response = await fetch(
       "https://apihub.agnes-ai.com/v1/videos",
       {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${apiKey}`,
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "Accept": "application/json"
         },
         body: JSON.stringify({
           model: "agnes-video-v2.0",
           prompt: prompt,
-          width: width,
-          height: height,
-          num_frames: numFrames,
-          frame_rate: frameRate
+          width: 1152,
+          height: 768,
+          num_frames: 121,
+          frame_rate: 24
         })
       }
     );
 
-    const data = await response.json();
+    const rawText = await response.text();
+
+    let data;
+
+    try {
+      data = JSON.parse(rawText);
+    } catch (parseError) {
+      return res.status(502).json({
+        success: false,
+        error: "Agnes returned a non-JSON response.",
+        provider_status: response.status,
+        provider_response: rawText.substring(0, 1000)
+      });
+    }
 
     if (!response.ok) {
       return res.status(response.status).json({
@@ -75,7 +81,6 @@ export default async function handler(req, res) {
       });
     }
 
-    // Agnes documentation allows video_id/task_id
     const videoId =
       data?.video_id ||
       data?.task_id ||
@@ -105,4 +110,4 @@ export default async function handler(req, res) {
       error: error?.message || "Server error."
     });
   }
-  }
+};
