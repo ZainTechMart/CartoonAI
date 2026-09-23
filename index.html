@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>CartoonAI — AI Video Generator</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #07111f;
+  color: white;
+  min-height: 100vh;
+}
+
+.container {
+  width: min(900px, 92%);
+  margin: auto;
+  padding: 30px 0 60px;
+}
+
+.logo {
+  text-align: center;
+  font-size: 32px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  text-align: center;
+  color: #a9b8ca;
+  margin-bottom: 30px;
+}
+
+.card {
+  background: #101d2e;
+  border: 1px solid #24364d;
+  border-radius: 18px;
+  padding: 22px;
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+textarea {
+  width: 100%;
+  min-height: 170px;
+  resize: vertical;
+  border: 1px solid #30445d;
+  border-radius: 12px;
+  background: #07111f;
+  color: white;
+  padding: 15px;
+  font-size: 16px;
+  line-height: 1.5;
+  outline: none;
+}
+
+textarea:focus {
+  border-color: #38bdf8;
+}
+
+button {
+  width: 100%;
+  border: 0;
+  border-radius: 12px;
+  padding: 15px;
+  margin-top: 15px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  background: #2563eb;
+  color: white;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.status {
+  margin-top: 15px;
+  padding: 13px;
+  border-radius: 10px;
+  background: #07111f;
+  color: #c7d5e5;
+  line-height: 1.5;
+}
+
+video {
+  width: 100%;
+  border-radius: 14px;
+  margin-top: 15px;
+  background: black;
+}
+
+.download {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+  background: #16a34a;
+  color: white;
+  padding: 14px;
+  border-radius: 12px;
+  margin-top: 12px;
+  font-weight: bold;
+}
+
+.small {
+  color: #8fa2b8;
+  font-size: 13px;
+  margin-top: 10px;
+}
+
+.error {
+  color: #ff8f8f;
+}
+
+.success {
+  color: #7ee2a8;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="logo">🎬 CartoonAI</div>
+
+  <div class="subtitle">
+    Turn your idea into a moving AI cartoon video
+  </div>
+
+  <div class="card">
+
+    <label for="prompt">🎨 Describe your video</label>
+
+    <textarea
+      id="prompt"
+      placeholder="Example: A colorful 3D cartoon boy named Zain walks through a beautiful Pakistani village at sunset. The trees move gently in the wind. Cinematic camera movement, expressive face, smooth animation..."
+    ></textarea>
+
+    <button id="generateBtn">
+      🎥 Generate AI Video
+    </button>
+
+    <div id="status" class="status">
+      Ready.
+    </div>
+
+  </div>
+
+  <div class="card" id="resultCard" style="display:none;">
+
+    <h2>🎬 Your Video</h2>
+
+    <video
+      id="videoPlayer"
+      controls
+      playsinline
+    ></video>
+
+    <a
+      id="downloadBtn"
+      class="download"
+      href="#"
+      target="_blank"
+      download
+    >
+      ⬇️ Download Video
+    </a>
+
+  </div>
+
+</div>
+
+<script>
+
+const generateBtn = document.getElementById("generateBtn");
+const promptBox = document.getElementById("prompt");
+const statusBox = document.getElementById("status");
+
+const resultCard = document.getElementById("resultCard");
+const videoPlayer = document.getElementById("videoPlayer");
+const downloadBtn = document.getElementById("downloadBtn");
+
+let polling = false;
+
+function setStatus(message, type = "") {
+  statusBox.className = "status";
+
+  if (type === "error") {
+    statusBox.classList.add("error");
+  }
+
+  if (type === "success") {
+    statusBox.classList.add("success");
+  }
+
+  statusBox.innerHTML = message;
+}
+
+async function generateVideo() {
+
+  const prompt = promptBox.value.trim();
+
+  if (!prompt) {
+    setStatus("Please enter a video prompt first.", "error");
+    return;
+  }
+
+  generateBtn.disabled = true;
+  resultCard.style.display = "none";
+
+  setStatus(
+    "⏳ Sending your prompt to the AI video generator..."
+  );
+
+  try {
+
+    const response = await fetch("/api/generate-video", {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json"
+      },
+
+      body: JSON.stringify({
+        prompt: prompt
+      })
+    });
+
+    const data = await response.json();
+
+    console.log("Generate response:", data);
+
+    if (!response.ok || !data.success) {
+      throw new Error(
+        data.error ||
+        "Could not start video generation."
+      );
+    }
+
+    const videoId =
+      data.video_id ||
+      data.videoId ||
+      data.task_id ||
+      data.taskId ||
+      data.id;
+
+    if (!videoId) {
+      throw new Error(
+        "The server did not return a video ID."
+      );
+    }
+
+    setStatus(
+      "🎬 Video generation started.<br>" +
+      "Video ID received successfully.<br><br>" +
+      "⏳ The AI is creating your video..."
+    );
+
+    await pollVideo(videoId);
+
+  } catch (error) {
+
+    console.error(error);
+
+    setStatus(
+      "❌ " + escapeHtml(error.message),
+      "error"
+    );
+
+  } finally {
+
+    generateBtn.disabled = false;
+  }
+}
+
+async function pollVideo(videoId) {
+
+  if (polling) return;
+
+  polling = true;
+
+  const maxAttempts = 90;
+
+  try {
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+
+      setStatus(
+        "🎬 AI video is generating...<br>" +
+        "Checking status: " +
+        attempt +
+        " / " +
+        maxAttempts
+      );
+
+      await sleep(10000);
+
+      const response = await fetch(
+        "/api/video-status",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json"
+          },
+
+          body: JSON.stringify({
+            video_id: String(videoId)
+          })
+        }
+      );
+
+      const data = await response.json();
+
+      console.log("Status response:", data);
+
+      if (!response.ok) {
+        throw new Error(
+          data.error ||
+          "Video status request failed."
+        );
+      }
+
+      if (data.video_url) {
+
+        showVideo(data.video_url);
+
+        setStatus(
+          "✅ Video generated successfully!",
+          "success"
+        );
+
+        return;
+      }
+
+      if (
+        data.success === false &&
+        data.pending !== true &&
+        data.status === "failed"
+      ) {
+        throw new Error(
+          data.error ||
+          "Agnes reported that video generation failed."
+        );
+      }
+
+      if (
+        data.status === "failed" ||
+        data.status === "error" ||
+        data.status === "cancelled" ||
+        data.status === "canceled"
+      ) {
+        throw new Error(
+          data.error ||
+          "Video generation failed."
+        );
+      }
+    }
+
+    throw new Error(
+      "Video generation is taking longer than expected. Please try again later."
+    );
+
+  } finally {
+
+    polling = false;
+  }
+}
+
+function showVideo(url) {
+
+  resultCard.style.display = "block";
+
+  videoPlayer.src = url;
+
+  downloadBtn.href = url;
+
+  videoPlayer.load();
+
+  resultCard.scrollIntoView({
+    behavior: "smooth"
+  });
+}
+
+function sleep(ms) {
+  return new Promise(resolve => {
+    setTimeout(resolve, ms);
+  });
+}
+
+function escapeHtml(text) {
+
+  const div = document.createElement("div");
+
+  div.textContent = text;
+
+  return div.innerHTML;
+}
+
+generateBtn.addEventListener(
+  "click",
+  generateVideo
+);
+
+</script>
+
+</body>
+  </html>
