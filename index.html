@@ -4,130 +4,241 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>CartoonAI — AI Video Generator</title>
+<title>CartoonAI — AI Cartoon Video Generator</title>
 
 <style>
-* {
-  box-sizing: border-box;
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
 }
 
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #07111f;
-  color: white;
-  min-height: 100vh;
+body{
+  font-family:Arial,Helvetica,sans-serif;
+  background:#070b14;
+  color:#fff;
+  min-height:100vh;
 }
 
-.container {
-  width: min(900px, 92%);
-  margin: auto;
-  padding: 30px 0 60px;
+.container{
+  width:min(950px,94%);
+  margin:auto;
+  padding:25px 0 50px;
 }
 
-.logo {
-  text-align: center;
-  font-size: 32px;
-  font-weight: 800;
-  margin-bottom: 8px;
+header{
+  text-align:center;
+  margin-bottom:25px;
 }
 
-.subtitle {
-  text-align: center;
-  color: #a9b8ca;
-  margin-bottom: 30px;
+.logo{
+  width:58px;
+  height:58px;
+  margin:auto;
+  border-radius:18px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:30px;
+  font-weight:bold;
+  background:linear-gradient(135deg,#3b82f6,#22d3ee);
+  box-shadow:0 10px 35px rgba(34,211,238,.18);
 }
 
-.card {
-  background: #101d2e;
-  border: 1px solid #24364d;
-  border-radius: 18px;
-  padding: 22px;
-  margin-bottom: 20px;
+h1{
+  margin-top:14px;
+  font-size:30px;
 }
 
-label {
-  display: block;
-  font-weight: bold;
-  margin-bottom: 10px;
+.subtitle{
+  margin-top:8px;
+  color:#9ca3af;
+  line-height:1.5;
 }
 
-textarea {
-  width: 100%;
-  min-height: 170px;
-  resize: vertical;
-  border: 1px solid #30445d;
-  border-radius: 12px;
-  background: #07111f;
-  color: white;
-  padding: 15px;
-  font-size: 16px;
-  line-height: 1.5;
-  outline: none;
+.card{
+  background:#101827;
+  border:1px solid #1f2b40;
+  border-radius:20px;
+  padding:20px;
+  margin-top:18px;
 }
 
-textarea:focus {
-  border-color: #38bdf8;
+label{
+  display:block;
+  margin-bottom:10px;
+  font-weight:bold;
 }
 
-button {
-  width: 100%;
-  border: 0;
-  border-radius: 12px;
-  padding: 15px;
-  margin-top: 15px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  background: #2563eb;
-  color: white;
+textarea{
+  width:100%;
+  min-height:150px;
+  resize:vertical;
+  background:#080d18;
+  color:#fff;
+  border:1px solid #26344d;
+  border-radius:14px;
+  padding:15px;
+  font-size:15px;
+  line-height:1.6;
+  outline:none;
 }
 
-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+textarea:focus{
+  border-color:#3b82f6;
 }
 
-.status {
-  margin-top: 15px;
-  padding: 13px;
-  border-radius: 10px;
-  background: #07111f;
-  color: #c7d5e5;
-  line-height: 1.5;
+.controls{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin-top:14px;
 }
 
-video {
-  width: 100%;
-  border-radius: 14px;
-  margin-top: 15px;
-  background: black;
+select{
+  width:100%;
+  padding:13px;
+  border-radius:12px;
+  border:1px solid #26344d;
+  background:#080d18;
+  color:#fff;
 }
 
-.download {
-  display: block;
-  text-align: center;
-  text-decoration: none;
-  background: #16a34a;
-  color: white;
-  padding: 14px;
-  border-radius: 12px;
-  margin-top: 12px;
-  font-weight: bold;
+button{
+  width:100%;
+  border:0;
+  border-radius:14px;
+  padding:15px;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
 }
 
-.small {
-  color: #8fa2b8;
-  font-size: 13px;
-  margin-top: 10px;
+.generate{
+  margin-top:15px;
+  background:linear-gradient(135deg,#2563eb,#06b6d4);
+  color:white;
 }
 
-.error {
-  color: #ff8f8f;
+.generate:disabled{
+  opacity:.5;
+  cursor:not-allowed;
 }
 
-.success {
-  color: #7ee2a8;
+.stop{
+  margin-top:10px;
+  background:#263044;
+  color:#fff;
+}
+
+.status{
+  margin-top:18px;
+  padding:14px;
+  border-radius:12px;
+  background:#080d18;
+  border:1px solid #202c41;
+  color:#cbd5e1;
+  line-height:1.6;
+}
+
+.progress-wrap{
+  margin-top:14px;
+  height:12px;
+  background:#080d18;
+  border-radius:20px;
+  overflow:hidden;
+}
+
+.progress{
+  width:0%;
+  height:100%;
+  background:linear-gradient(90deg,#3b82f6,#22d3ee);
+  transition:width .3s;
+}
+
+.scene-list{
+  margin-top:15px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.scene{
+  padding:11px;
+  border-radius:10px;
+  background:#0b1220;
+  border:1px solid #1c293d;
+  color:#94a3b8;
+  font-size:13px;
+}
+
+.scene.active{
+  color:#fff;
+  border-color:#3b82f6;
+}
+
+.scene.done{
+  color:#86efac;
+  border-color:#166534;
+}
+
+.scene.failed{
+  color:#fca5a5;
+  border-color:#7f1d1d;
+}
+
+.video-area{
+  display:none;
+  margin-top:20px;
+}
+
+video{
+  width:100%;
+  border-radius:16px;
+  background:#000;
+  display:block;
+}
+
+.download{
+  display:block;
+  text-align:center;
+  text-decoration:none;
+  background:#16a34a;
+  color:#fff;
+  padding:14px;
+  border-radius:13px;
+  margin-top:12px;
+  font-weight:bold;
+}
+
+.note{
+  margin-top:12px;
+  color:#64748b;
+  font-size:12px;
+  line-height:1.5;
+}
+
+@media(max-width:600px){
+  .container{
+    width:94%;
+    padding-top:18px;
+  }
+
+  h1{
+    font-size:25px;
+  }
+
+  .controls{
+    grid-template-columns:1fr;
+  }
+
+  .card{
+    padding:15px;
+  }
+
+  textarea{
+    min-height:170px;
+  }
 }
 </style>
 </head>
@@ -136,288 +247,693 @@ video {
 
 <div class="container">
 
-  <div class="logo">🎬 CartoonAI</div>
-
+<header>
+  <div class="logo">🎬</div>
+  <h1>CartoonAI</h1>
   <div class="subtitle">
-    Turn your idea into a moving AI cartoon video
+    Turn your story idea into a complete AI cartoon video.
   </div>
+</header>
 
-  <div class="card">
+<div class="card">
 
-    <label for="prompt">🎨 Describe your video</label>
+<label for="prompt">🎨 Describe your cartoon story</label>
 
-    <textarea
-      id="prompt"
-      placeholder="Example: A colorful 3D cartoon boy named Zain walks through a beautiful Pakistani village at sunset. The trees move gently in the wind. Cinematic camera movement, expressive face, smooth animation..."
-    ></textarea>
+<textarea id="prompt"
+placeholder="Example:
+Zain and Mina discover a mysterious box in their village. The box leads them on a magical adventure through the forest. They solve a mystery and return home safely."></textarea>
 
-    <button id="generateBtn">
-      🎥 Generate AI Video
-    </button>
+<div class="controls">
 
-    <div id="status" class="status">
-      Ready.
-    </div>
+<div>
+<label for="duration">🎞️ Video length</label>
 
-  </div>
+<select id="duration">
+  <option value="12">1 minute — 12 scenes</option>
+  <option value="24">2 minutes — 24 scenes</option>
+  <option value="36">3 minutes — 36 scenes</option>
+</select>
+</div>
 
-  <div class="card" id="resultCard" style="display:none;">
+<div>
+<label for="style">🎨 Animation style</label>
 
-    <h2>🎬 Your Video</h2>
-
-    <video
-      id="videoPlayer"
-      controls
-      playsinline
-    ></video>
-
-    <a
-      id="downloadBtn"
-      class="download"
-      href="#"
-      target="_blank"
-      download
-    >
-      ⬇️ Download Video
-    </a>
-
-  </div>
+<select id="style">
+  <option value="3D cartoon">3D Cartoon</option>
+  <option value="cinematic 3D cartoon">Cinematic 3D Cartoon</option>
+  <option value="colorful family animation">Colorful Family Animation</option>
+</select>
+</div>
 
 </div>
+
+<button id="generateBtn" class="generate">
+🎥 Generate Complete Cartoon
+</button>
+
+<button id="stopBtn" class="stop" style="display:none;">
+⛔ Stop Generation
+</button>
+
+<div id="status" class="status">
+Ready. Enter your story and press Generate.
+</div>
+
+<div class="progress-wrap">
+  <div id="progress" class="progress"></div>
+</div>
+
+<div id="sceneList" class="scene-list"></div>
+
+<div id="videoArea" class="video-area">
+
+  <video id="finalVideo" controls playsinline></video>
+
+  <a id="downloadBtn"
+     class="download"
+     download="cartoonai-final-video.mp4">
+     ⬇️ Download Complete Cartoon
+  </a>
+
+</div>
+
+<div class="note">
+Each generated scene is approximately 5 seconds. Longer cartoons are created by generating multiple scenes and joining them together.
+</div>
+
+</div>
+
+</div>
+
+<!-- FFmpeg.wasm -->
+<script src="https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
+<script src="https://unpkg.com/@ffmpeg/util@0.11.6/dist/index.min.js"></script>
 
 <script>
 
 const generateBtn = document.getElementById("generateBtn");
-const promptBox = document.getElementById("prompt");
-const statusBox = document.getElementById("status");
+const stopBtn = document.getElementById("stopBtn");
+const promptInput = document.getElementById("prompt");
+const durationSelect = document.getElementById("duration");
+const styleSelect = document.getElementById("style");
 
-const resultCard = document.getElementById("resultCard");
-const videoPlayer = document.getElementById("videoPlayer");
+const statusBox = document.getElementById("status");
+const progressBar = document.getElementById("progress");
+const sceneList = document.getElementById("sceneList");
+
+const videoArea = document.getElementById("videoArea");
+const finalVideo = document.getElementById("finalVideo");
 const downloadBtn = document.getElementById("downloadBtn");
 
-let polling = false;
+let stopped = false;
+let ffmpeg = null;
 
-function setStatus(message, type = "") {
-  statusBox.className = "status";
+const sleep = ms =>
+  new Promise(resolve => setTimeout(resolve, ms));
 
-  if (type === "error") {
-    statusBox.classList.add("error");
-  }
-
-  if (type === "success") {
-    statusBox.classList.add("success");
-  }
-
-  statusBox.innerHTML = message;
+function setStatus(message){
+  statusBox.textContent = message;
 }
 
-async function generateVideo() {
+function setProgress(value){
+  progressBar.style.width =
+    Math.max(0,Math.min(100,value)) + "%";
+}
 
-  const prompt = promptBox.value.trim();
+function addScene(number,text){
 
-  if (!prompt) {
-    setStatus("Please enter a video prompt first.", "error");
-    return;
+  const div = document.createElement("div");
+
+  div.className = "scene";
+  div.id = "scene-" + number;
+
+  div.innerHTML =
+    "<strong>Scene " + number + "</strong> — " +
+    escapeHtml(text);
+
+  sceneList.appendChild(div);
+
+  return div;
+}
+
+function escapeHtml(value){
+
+  return String(value)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+/*
+  Convert the user's story into scene prompts.
+
+  We deliberately keep the user's original story inside
+  every prompt so the character/style context remains
+  available to Agnes for every scene.
+*/
+
+function createScenes(story,count,style){
+
+  const locations = [
+    "beautiful Pakistani village at sunset",
+    "village path surrounded by green trees",
+    "small village houses and fields",
+    "quiet countryside near the village",
+    "beautiful green forest near the village",
+    "sunny open field",
+    "mysterious forest clearing",
+    "old wooden bridge near the village",
+    "magical forest path",
+    "village hill overlooking the countryside",
+    "peaceful village evening",
+    "warm village home at sunset"
+  ];
+
+  const actions = [
+    "introduce the characters and establish the environment",
+    "the characters walk together and look around curiously",
+    "the characters notice something unusual",
+    "the characters move closer to investigate",
+    "the characters discover an important clue",
+    "the characters discuss what they have discovered",
+    "the characters continue their adventure",
+    "the characters face a small mystery or challenge",
+    "the characters work together to solve the problem",
+    "the mystery becomes clear",
+    "the characters celebrate their discovery",
+    "the characters return home safely and smile"
+  ];
+
+  const scenes = [];
+
+  for(let i=0;i<count;i++){
+
+    const location =
+      locations[i % locations.length];
+
+    const action =
+      actions[i % actions.length];
+
+    const prompt =
+      `${style} animation, family-friendly high-quality 3D cartoon.
+
+Original story:
+${story}
+
+Scene ${i+1} of ${count}.
+
+Location:
+${location}.
+
+Action:
+${action}.
+
+Maintain consistent characters, clothing, age, appearance,
+facial identity and colors throughout the story.
+
+Use smooth natural character movement,
+expressive faces,
+gentle environmental movement,
+cinematic camera movement,
+beautiful lighting,
+detailed colorful environment,
+stable camera,
+no text,
+no subtitles,
+no watermark,
+no logos,
+no distorted faces,
+no extra limbs,
+no duplicate characters.
+
+This scene must visually continue the same story as the previous and next scenes.`;
+
+    scenes.push(prompt);
   }
 
-  generateBtn.disabled = true;
-  resultCard.style.display = "none";
+  return scenes;
+}
 
-  setStatus(
-    "⏳ Sending your prompt to the AI video generator..."
-  );
 
-  try {
+/*
+  Start one Agnes video generation job.
+*/
 
-    const response = await fetch("/api/generate-video", {
-      method: "POST",
+async function createVideo(prompt){
 
-      headers: {
-        "Content-Type": "application/json"
+  const response = await fetch("/api/generate-video",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json"
+    },
+    body:JSON.stringify({
+      prompt:prompt
+    })
+  });
+
+  const text = await response.text();
+
+  let data;
+
+  try{
+    data = JSON.parse(text);
+  }catch(error){
+    throw new Error(
+      "Server returned invalid response: " +
+      text.substring(0,250)
+    );
+  }
+
+  if(!response.ok || !data.success){
+
+    throw new Error(
+      data.error ||
+      "Video generation request failed."
+    );
+  }
+
+  return data.video_id;
+}
+
+
+/*
+  Poll the existing video-status API until
+  Agnes returns the final video URL.
+*/
+
+async function waitForVideo(videoId,sceneNumber){
+
+  for(let attempt=1;attempt<=90;attempt++){
+
+    if(stopped){
+      throw new Error("Generation stopped by user.");
+    }
+
+    const response = await fetch("/api/video-status",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
       },
-
-      body: JSON.stringify({
-        prompt: prompt
+      body:JSON.stringify({
+        video_id:String(videoId)
       })
     });
 
-    const data = await response.json();
+    const text = await response.text();
 
-    console.log("Generate response:", data);
+    let data;
 
-    if (!response.ok || !data.success) {
+    try{
+      data = JSON.parse(text);
+    }catch(error){
       throw new Error(
-        data.error ||
-        "Could not start video generation."
+        "Status server returned invalid response: " +
+        text.substring(0,250)
       );
     }
 
-    const videoId =
-      data.video_id ||
-      data.videoId ||
-      data.task_id ||
-      data.taskId ||
-      data.id;
+    if(!response.ok){
 
-    if (!videoId) {
       throw new Error(
-        "The server did not return a video ID."
+        data.error ||
+        "Unable to check video status."
+      );
+    }
+
+    if(data.video_url){
+
+      return data.video_url;
+    }
+
+    if(
+      data.status === "failed" ||
+      data.status === "error" ||
+      data.status === "cancelled" ||
+      data.status === "canceled"
+    ){
+
+      throw new Error(
+        data.error ||
+        "Agnes failed to generate this scene."
       );
     }
 
     setStatus(
-      "🎬 Video generation started.<br>" +
-      "Video ID received successfully.<br><br>" +
-      "⏳ The AI is creating your video..."
+      "🎬 Scene " +
+      sceneNumber +
+      " is generating... Checking status: " +
+      attempt +
+      " / 90"
     );
 
-    await pollVideo(videoId);
+    await sleep(4000);
+  }
 
-  } catch (error) {
+  throw new Error(
+    "Scene " +
+    sceneNumber +
+    " took too long to complete."
+  );
+}
+
+
+/*
+  Download a generated scene into browser memory.
+*/
+
+async function downloadScene(url){
+
+  const response = await fetch(url);
+
+  if(!response.ok){
+    throw new Error(
+      "Could not download generated scene."
+    );
+  }
+
+  return await response.blob();
+}
+
+
+/*
+  Load FFmpeg.
+*/
+
+async function loadFFmpeg(){
+
+  if(ffmpeg){
+    return;
+  }
+
+  setStatus("⚙️ Loading video editor...");
+
+  ffmpeg = FFmpeg.createFFmpeg({
+    log:false
+  });
+
+  await ffmpeg.load();
+}
+
+
+/*
+  Join all MP4 scene files into one MP4.
+*/
+
+async function combineVideos(blobs){
+
+  await loadFFmpeg();
+
+  setStatus(
+    "🎞️ Combining " +
+    blobs.length +
+    " scenes into the final cartoon..."
+  );
+
+  const inputFiles = [];
+
+  for(let i=0;i<blobs.length;i++){
+
+    const filename =
+      "scene" +
+      String(i).padStart(3,"0") +
+      ".mp4";
+
+    ffmpeg.FS(
+      "writeFile",
+      filename,
+      await FFmpeg.fetchFile(blobs[i])
+    );
+
+    inputFiles.push(filename);
+  }
+
+  /*
+    concat.txt tells FFmpeg the order of scenes.
+  */
+
+  const concatText =
+    inputFiles
+      .map(file => "file '" + file + "'")
+      .join("\n");
+
+  ffmpeg.FS(
+    "writeFile",
+    "concat.txt",
+    new TextEncoder().encode(concatText)
+  );
+
+  await ffmpeg.run(
+    "-f",
+    "concat",
+    "-safe",
+    "0",
+    "-i",
+    "concat.txt",
+    "-c",
+    "copy",
+    "final.mp4"
+  );
+
+  const data =
+    ffmpeg.FS("readFile","final.mp4");
+
+  return new Blob(
+    [data.buffer],
+    {type:"video/mp4"}
+  );
+}
+
+
+/*
+  Main generation process.
+*/
+
+generateBtn.addEventListener("click",async()=>{
+
+  const story =
+    promptInput.value.trim();
+
+  if(!story){
+
+    setStatus(
+      "⚠️ Please describe your cartoon story first."
+    );
+
+    promptInput.focus();
+
+    return;
+  }
+
+  stopped = false;
+
+  generateBtn.disabled = true;
+  stopBtn.style.display = "block";
+
+  videoArea.style.display = "none";
+
+  sceneList.innerHTML = "";
+
+  setProgress(0);
+
+  try{
+
+    const sceneCount =
+      Number(durationSelect.value);
+
+    const style =
+      styleSelect.value;
+
+    /*
+      Create all scene prompts.
+    */
+
+    const scenes =
+      createScenes(
+        story,
+        sceneCount,
+        style
+      );
+
+    scenes.forEach(
+      (scene,index)=>
+        addScene(
+          index+1,
+          scene.substring(
+            0,
+            150
+          ) + "..."
+        )
+    );
+
+    const sceneVideos = [];
+
+    /*
+      Generate scenes ONE BY ONE.
+
+      Sequential generation is intentional:
+      it reduces simultaneous API load and makes
+      progress easier to track on mobile.
+    */
+
+    for(let i=0;i<scenes.length;i++){
+
+      if(stopped){
+        throw new Error(
+          "Generation stopped by user."
+        );
+      }
+
+      const sceneElement =
+        document.getElementById(
+          "scene-" + (i+1)
+        );
+
+      sceneElement.className =
+        "scene active";
+
+      setStatus(
+        "🎬 Generating Scene " +
+        (i+1) +
+        " of " +
+        scenes.length +
+        "..."
+      );
+
+      const videoId =
+        await createVideo(
+          scenes[i]
+        );
+
+      const videoUrl =
+        await waitForVideo(
+          videoId,
+          i+1
+        );
+
+      /*
+        Download the generated MP4
+        before moving to the next scene.
+      */
+
+      setStatus(
+        "⬇️ Downloading Scene " +
+        (i+1) +
+        "..."
+      );
+
+      const blob =
+        await downloadScene(
+          videoUrl
+        );
+
+      sceneVideos.push(blob);
+
+      sceneElement.className =
+        "scene done";
+
+      sceneElement.innerHTML =
+        "<strong>Scene " +
+        (i+1) +
+        "</strong> — ✅ Completed";
+
+      const generationProgress =
+        ((i+1) / scenes.length) * 85;
+
+      setProgress(
+        generationProgress
+      );
+    }
+
+    /*
+      All scenes are ready.
+    */
+
+    setStatus(
+      "🎞️ All scenes generated. Creating final video..."
+    );
+
+    setProgress(90);
+
+    const finalBlob =
+      await combineVideos(
+        sceneVideos
+      );
+
+    /*
+      Create browser download URL.
+    */
+
+    const finalUrl =
+      URL.createObjectURL(
+        finalBlob
+      );
+
+    finalVideo.src = finalUrl;
+
+    downloadBtn.href =
+      finalUrl;
+
+    videoArea.style.display =
+      "block";
+
+    setProgress(100);
+
+    setStatus(
+      "🎉 Complete cartoon video is ready!"
+    );
+
+    window.scrollTo({
+      top:document.body.scrollHeight,
+      behavior:"smooth"
+    });
+
+  }catch(error){
 
     console.error(error);
 
     setStatus(
-      "❌ " + escapeHtml(error.message),
-      "error"
+      "❌ " +
+      (
+        error?.message ||
+        "Something went wrong."
+      )
     );
 
-  } finally {
+  }finally{
 
     generateBtn.disabled = false;
+    stopBtn.style.display = "none";
   }
-}
 
-async function pollVideo(videoId) {
+});
 
-  if (polling) return;
 
-  polling = true;
+/*
+  Stop button.
+*/
 
-  const maxAttempts = 90;
+stopBtn.addEventListener("click",()=>{
 
-  try {
+  stopped = true;
 
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+  setStatus(
+    "⛔ Stopping after the current request..."
+  );
 
-      setStatus(
-        "🎬 AI video is generating...<br>" +
-        "Checking status: " +
-        attempt +
-        " / " +
-        maxAttempts
-      );
+  stopBtn.disabled = true;
+});
 
-      await sleep(10000);
 
-      const response = await fetch(
-        "/api/video-status",
-        {
-          method: "POST",
+/*
+  Example prompt.
+*/
 
-          headers: {
-            "Content-Type": "application/json"
-          },
-
-          body: JSON.stringify({
-            video_id: String(videoId)
-          })
-        }
-      );
-
-      const data = await response.json();
-
-      console.log("Status response:", data);
-
-      if (!response.ok) {
-        throw new Error(
-          data.error ||
-          "Video status request failed."
-        );
-      }
-
-      if (data.video_url) {
-
-        showVideo(data.video_url);
-
-        setStatus(
-          "✅ Video generated successfully!",
-          "success"
-        );
-
-        return;
-      }
-
-      if (
-        data.success === false &&
-        data.pending !== true &&
-        data.status === "failed"
-      ) {
-        throw new Error(
-          data.error ||
-          "Agnes reported that video generation failed."
-        );
-      }
-
-      if (
-        data.status === "failed" ||
-        data.status === "error" ||
-        data.status === "cancelled" ||
-        data.status === "canceled"
-      ) {
-        throw new Error(
-          data.error ||
-          "Video generation failed."
-        );
-      }
-    }
-
-    throw new Error(
-      "Video generation is taking longer than expected. Please try again later."
-    );
-
-  } finally {
-
-    polling = false;
-  }
-}
-
-function showVideo(url) {
-
-  resultCard.style.display = "block";
-
-  videoPlayer.src = url;
-
-  downloadBtn.href = url;
-
-  videoPlayer.load();
-
-  resultCard.scrollIntoView({
-    behavior: "smooth"
-  });
-}
-
-function sleep(ms) {
-  return new Promise(resolve => {
-    setTimeout(resolve, ms);
-  });
-}
-
-function escapeHtml(text) {
-
-  const div = document.createElement("div");
-
-  div.textContent = text;
-
-  return div.innerHTML;
-}
-
-generateBtn.addEventListener(
-  "click",
-  generateVideo
-);
+promptInput.value =
+`A colorful 3D cartoon story about an 8-year-old Pakistani boy named Zain who lives in a beautiful village. One evening, Zain discovers a mysterious glowing box near an old tree. He calls his friend Mina and together they investigate the box. The box leads them into a magical adventure through the village and nearby forest. They discover a beautiful secret and finally return home safely before sunset. The story should be exciting, friendly, emotional and suitable for children.`;
 
 </script>
 
 </body>
-  </html>
+    </html>
