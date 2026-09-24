@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>CartoonAI — AI Video Generator</title>
+<title>CartoonAI — 40 Second AI Video</title>
 
 <style>
 * {
@@ -54,7 +54,7 @@ label {
 
 textarea {
   width: 100%;
-  min-height: 170px;
+  min-height: 180px;
   resize: vertical;
   border: 1px solid #30445d;
   border-radius: 12px;
@@ -94,7 +94,7 @@ button:disabled {
   border-radius: 10px;
   background: #07111f;
   color: #c7d5e5;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 video {
@@ -116,18 +116,33 @@ video {
   font-weight: bold;
 }
 
-.small {
-  color: #8fa2b8;
-  font-size: 13px;
-  margin-top: 10px;
-}
-
 .error {
   color: #ff8f8f;
 }
 
 .success {
   color: #7ee2a8;
+}
+
+.progress {
+  margin-top: 12px;
+  height: 8px;
+  background: #1d2b3d;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progressBar {
+  height: 100%;
+  width: 0%;
+  background: #38bdf8;
+  transition: width .3s;
+}
+
+.small {
+  color: #8fa2b8;
+  font-size: 13px;
+  margin-top: 10px;
 }
 </style>
 </head>
@@ -139,31 +154,37 @@ video {
   <div class="logo">🎬 CartoonAI</div>
 
   <div class="subtitle">
-    Turn your idea into a moving AI cartoon video
+    Turn your idea into a 30–40 second AI cartoon video
   </div>
 
   <div class="card">
 
-    <label for="prompt">🎨 Describe your video</label>
+    <label for="prompt">
+      🎨 Describe your video
+    </label>
 
     <textarea
       id="prompt"
-      placeholder="Example: A colorful 3D cartoon boy named Zain walks through a beautiful Pakistani village at sunset. The trees move gently in the wind. Cinematic camera movement, expressive face, smooth animation..."
+      placeholder="Example: A colorful 3D cartoon boy named Zain walks through a beautiful Pakistani village at sunset. He discovers a mysterious glowing box near an old tree. Cinematic camera movement, expressive face, smooth animation, consistent character design..."
     ></textarea>
 
     <button id="generateBtn">
-      🎥 Generate AI Video
+      🎥 Generate 30–40 Second Video
     </button>
 
     <div id="status" class="status">
       Ready.
     </div>
 
+    <div class="progress">
+      <div id="progressBar" class="progressBar"></div>
+    </div>
+
   </div>
 
   <div class="card" id="resultCard" style="display:none;">
 
-    <h2>🎬 Your Video</h2>
+    <h2>🎬 Your Final Video</h2>
 
     <video
       id="videoPlayer"
@@ -175,10 +196,9 @@ video {
       id="downloadBtn"
       class="download"
       href="#"
-      target="_blank"
-      download
+      download="cartoonai-video.mp4"
     >
-      ⬇️ Download Video
+      ⬇️ Download Final Video
     </a>
 
   </div>
@@ -187,17 +207,29 @@ video {
 
 <script>
 
-const generateBtn = document.getElementById("generateBtn");
-const promptBox = document.getElementById("prompt");
-const statusBox = document.getElementById("status");
+const generateBtn =
+  document.getElementById("generateBtn");
 
-const resultCard = document.getElementById("resultCard");
-const videoPlayer = document.getElementById("videoPlayer");
-const downloadBtn = document.getElementById("downloadBtn");
+const promptBox =
+  document.getElementById("prompt");
 
-let polling = false;
+const statusBox =
+  document.getElementById("status");
+
+const progressBar =
+  document.getElementById("progressBar");
+
+const resultCard =
+  document.getElementById("resultCard");
+
+const videoPlayer =
+  document.getElementById("videoPlayer");
+
+const downloadBtn =
+  document.getElementById("downloadBtn");
 
 function setStatus(message, type = "") {
+
   statusBox.className = "status";
 
   if (type === "error") {
@@ -211,39 +243,64 @@ function setStatus(message, type = "") {
   statusBox.innerHTML = message;
 }
 
+function setProgress(value) {
+  progressBar.style.width =
+    Math.max(0, Math.min(100, value)) + "%";
+}
+
 async function generateVideo() {
 
-  const prompt = promptBox.value.trim();
+  const prompt =
+    promptBox.value.trim();
 
   if (!prompt) {
-    setStatus("Please enter a video prompt first.", "error");
+    setStatus(
+      "Please enter a video prompt first.",
+      "error"
+    );
     return;
   }
 
   generateBtn.disabled = true;
+
   resultCard.style.display = "none";
 
+  setProgress(0);
+
   setStatus(
-    "⏳ Sending your prompt to the AI video generator..."
+    "⏳ Starting your 30–40 second AI video..."
   );
 
   try {
 
-    const response = await fetch("/api/generate-video", {
-      method: "POST",
+    const response = await fetch(
+      "/api/generate-video",
+      {
+        method: "POST",
 
-      headers: {
-        "Content-Type": "application/json"
-      },
+        headers: {
+          "Content-Type": "application/json"
+        },
 
-      body: JSON.stringify({
-        prompt: prompt
-      })
-    });
+        body: JSON.stringify({
+          prompt: prompt
+        })
+      }
+    );
 
-    const data = await response.json();
+    const text =
+      await response.text();
 
-    console.log("Generate response:", data);
+    let data;
+
+    try {
+      data = JSON.parse(text);
+    } catch {
+      throw new Error(
+        "Server returned an invalid response: " +
+        text.substring(0, 200)
+      );
+    }
 
     if (!response.ok || !data.success) {
       throw new Error(
@@ -252,33 +309,32 @@ async function generateVideo() {
       );
     }
 
-    const videoId =
-      data.video_id ||
-      data.videoId ||
-      data.task_id ||
-      data.taskId ||
-      data.id;
-
-    if (!videoId) {
-      throw new Error(
-        "The server did not return a video ID."
-      );
-    }
-
     setStatus(
-      "🎬 Video generation started.<br>" +
-      "Video ID received successfully.<br><br>" +
-      "⏳ The AI is creating your video..."
+      "🎬 Scene 1/2 started.<br>" +
+      "⏳ Creating the first cinematic clip..."
     );
 
-    await pollVideo(videoId);
+    const result =
+      await pollJob(data.job_id);
+
+    showVideo(result.video_url);
+
+    setProgress(100);
+
+    setStatus(
+      "✅ Your 30–40 second video is ready!",
+      "success"
+    );
 
   } catch (error) {
 
     console.error(error);
 
+    setProgress(0);
+
     setStatus(
-      "❌ " + escapeHtml(error.message),
+      "❌ " +
+      escapeHtml(error.message),
       "error"
     );
 
@@ -288,29 +344,20 @@ async function generateVideo() {
   }
 }
 
-async function pollVideo(videoId) {
+async function pollJob(jobId) {
 
-  if (polling) return;
+  const maxAttempts = 180;
 
-  polling = true;
+  for (
+    let attempt = 1;
+    attempt <= maxAttempts;
+    attempt++
+  ) {
 
-  const maxAttempts = 90;
+    await sleep(10000);
 
-  try {
-
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-
-      setStatus(
-        "🎬 AI video is generating...<br>" +
-        "Checking status: " +
-        attempt +
-        " / " +
-        maxAttempts
-      );
-
-      await sleep(10000);
-
-      const response = await fetch(
+    const response =
+      await fetch(
         "/api/video-status",
         {
           method: "POST",
@@ -320,71 +367,88 @@ async function pollVideo(videoId) {
           },
 
           body: JSON.stringify({
-            video_id: String(videoId)
+            job_id: String(jobId)
           })
         }
       );
 
-      const data = await response.json();
+    const text =
+      await response.text();
 
-      console.log("Status response:", data);
+    let data;
 
-      if (!response.ok) {
-        throw new Error(
-          data.error ||
-          "Video status request failed."
-        );
-      }
-
-      if (data.video_url) {
-
-        showVideo(data.video_url);
-
-        setStatus(
-          "✅ Video generated successfully!",
-          "success"
-        );
-
-        return;
-      }
-
-      if (
-        data.success === false &&
-        data.pending !== true &&
-        data.status === "failed"
-      ) {
-        throw new Error(
-          data.error ||
-          "Agnes reported that video generation failed."
-        );
-      }
-
-      if (
-        data.status === "failed" ||
-        data.status === "error" ||
-        data.status === "cancelled" ||
-        data.status === "canceled"
-      ) {
-        throw new Error(
-          data.error ||
-          "Video generation failed."
-        );
-      }
+    try {
+      data = JSON.parse(text);
+    } catch {
+      throw new Error(
+        "Status server returned invalid response."
+      );
     }
 
-    throw new Error(
-      "Video generation is taking longer than expected. Please try again later."
-    );
+    if (!response.ok) {
 
-  } finally {
+      throw new Error(
+        data.error ||
+        "Video status request failed."
+      );
+    }
 
-    polling = false;
+    if (data.status === "scene1") {
+
+      setProgress(15);
+
+      setStatus(
+        "🎬 Scene 1/2 is generating...<br>" +
+        "⏳ Please wait..."
+      );
+
+    } else if (data.status === "scene2") {
+
+      setProgress(55);
+
+      setStatus(
+        "🎬 Scene 1 completed.<br>" +
+        "🎬 Scene 2/2 is generating...<br>" +
+        "⏳ Please wait..."
+      );
+
+    } else if (data.status === "merging") {
+
+      setProgress(85);
+
+      setStatus(
+        "🎬 Both scenes completed.<br>" +
+        "🔗 Preparing your final video..."
+      );
+
+    } else if (data.status === "completed") {
+
+      return {
+        video_url: data.video_url
+      };
+    }
+
+    if (
+      data.status === "failed" ||
+      data.status === "error"
+    ) {
+
+      throw new Error(
+        data.error ||
+        "Video generation failed."
+      );
+    }
   }
+
+  throw new Error(
+    "Video generation is taking too long. Please try again later."
+  );
 }
 
 function showVideo(url) {
 
-  resultCard.style.display = "block";
+  resultCard.style.display =
+    "block";
 
   videoPlayer.src = url;
 
@@ -398,14 +462,15 @@ function showVideo(url) {
 }
 
 function sleep(ms) {
-  return new Promise(resolve => {
-    setTimeout(resolve, ms);
-  });
+  return new Promise(
+    resolve => setTimeout(resolve, ms)
+  );
 }
 
 function escapeHtml(text) {
 
-  const div = document.createElement("div");
+  const div =
+    document.createElement("div");
 
   div.textContent = text;
 
@@ -420,4 +485,4 @@ generateBtn.addEventListener(
 </script>
 
 </body>
-       </html>
+</html>
