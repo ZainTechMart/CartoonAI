@@ -3,485 +3,201 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>CartoonAI — 40 Second AI Video</title>
 
 <style>
-* {
-  box-sizing: border-box;
-}
-
+* { box-sizing: border-box; }
 body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #07111f;
-  color: white;
-  min-height: 100vh;
+  margin: 0; font-family: Arial, sans-serif;
+  background: #07111f; color: white; min-height: 100vh;
 }
-
-.container {
-  width: min(900px, 92%);
-  margin: auto;
-  padding: 30px 0 60px;
-}
-
-.logo {
-  text-align: center;
-  font-size: 32px;
-  font-weight: 800;
-  margin-bottom: 8px;
-}
-
-.subtitle {
-  text-align: center;
-  color: #a9b8ca;
-  margin-bottom: 30px;
-}
-
+.container { width: min(900px, 92%); margin: auto; padding: 30px 0 60px; }
+.logo { text-align: center; font-size: 32px; font-weight: 800; margin-bottom: 8px; }
+.subtitle { text-align: center; color: #a9b8ca; margin-bottom: 30px; }
 .card {
-  background: #101d2e;
-  border: 1px solid #24364d;
-  border-radius: 18px;
-  padding: 22px;
-  margin-bottom: 20px;
+  background: #101d2e; border: 1px solid #24364d;
+  border-radius: 18px; padding: 22px; margin-bottom: 20px;
 }
-
-label {
-  display: block;
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
+label { display: block; font-weight: bold; margin-bottom: 10px; }
 textarea {
-  width: 100%;
-  min-height: 180px;
-  resize: vertical;
-  border: 1px solid #30445d;
-  border-radius: 12px;
-  background: #07111f;
-  color: white;
-  padding: 15px;
-  font-size: 16px;
-  line-height: 1.5;
-  outline: none;
+  width: 100%; min-height: 180px; resize: vertical;
+  border: 1px solid #30445d; border-radius: 12px;
+  background: #07111f; color: white; padding: 15px;
+  font-size: 16px; line-height: 1.5; outline: none;
 }
-
-textarea:focus {
-  border-color: #38bdf8;
-}
-
+textarea:focus { border-color: #38bdf8; }
 button {
-  width: 100%;
-  border: 0;
-  border-radius: 12px;
-  padding: 15px;
-  margin-top: 15px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  background: #2563eb;
-  color: white;
+  width: 100%; border: 0; border-radius: 12px; padding: 15px; margin-top: 15px;
+  font-size: 16px; font-weight: bold; cursor: pointer; background: #2563eb; color: white;
 }
-
-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
+button:disabled { opacity: 0.5; cursor: not-allowed; }
 .status {
-  margin-top: 15px;
-  padding: 13px;
-  border-radius: 10px;
-  background: #07111f;
-  color: #c7d5e5;
-  line-height: 1.6;
+  margin-top: 15px; padding: 13px; border-radius: 10px;
+  background: #07111f; color: #c7d5e5; line-height: 1.6;
 }
-
-video {
-  width: 100%;
-  border-radius: 14px;
-  margin-top: 15px;
-  background: black;
-}
-
+video { width: 100%; border-radius: 14px; margin-top: 15px; background: black; }
 .download {
-  display: block;
-  text-align: center;
-  text-decoration: none;
-  background: #16a34a;
-  color: white;
-  padding: 14px;
-  border-radius: 12px;
-  margin-top: 12px;
-  font-weight: bold;
+  display: block; text-align: center; text-decoration: none;
+  background: #16a34a; color: white; padding: 14px; border-radius: 12px;
+  margin-top: 12px; font-weight: bold;
 }
-
-.error {
-  color: #ff8f8f;
-}
-
-.success {
-  color: #7ee2a8;
-}
-
-.progress {
-  margin-top: 12px;
-  height: 8px;
-  background: #1d2b3d;
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.progressBar {
-  height: 100%;
-  width: 0%;
-  background: #38bdf8;
-  transition: width .3s;
-}
-
-.small {
-  color: #8fa2b8;
-  font-size: 13px;
-  margin-top: 10px;
-}
+.error { color: #ff8f8f; }
+.success { color: #7ee2a8; }
+.progress { margin-top: 12px; height: 8px; background: #1d2b3d; border-radius: 10px; overflow: hidden; }
+.progressBar { height: 100%; width: 0%; background: #38bdf8; transition: width .3s; }
 </style>
 </head>
 
 <body>
 
 <div class="container">
-
   <div class="logo">🎬 CartoonAI</div>
-
-  <div class="subtitle">
-    Turn your idea into a 30–40 second AI cartoon video
-  </div>
+  <div class="subtitle">Turn your idea into a 30–40 second AI cartoon video</div>
 
   <div class="card">
+    <label for="prompt">🎨 Describe your video</label>
+    <textarea id="prompt" placeholder="Example: A colorful 3D cartoon boy named Zain walks through a beautiful Pakistani village at sunset. He discovers a mysterious glowing box near an old tree..."></textarea>
+    
+    <button id="generateBtn">🎥 Generate 30–40 Second Video</button>
 
-    <label for="prompt">
-      🎨 Describe your video
-    </label>
-
-    <textarea
-      id="prompt"
-      placeholder="Example: A colorful 3D cartoon boy named Zain walks through a beautiful Pakistani village at sunset. He discovers a mysterious glowing box near an old tree. Cinematic camera movement, expressive face, smooth animation, consistent character design..."
-    ></textarea>
-
-    <button id="generateBtn">
-      🎥 Generate 30–40 Second Video
-    </button>
-
-    <div id="status" class="status">
-      Ready.
-    </div>
-
-    <div class="progress">
-      <div id="progressBar" class="progressBar"></div>
-    </div>
-
+    <div id="status" class="status">Ready.</div>
+    <div class="progress"><div id="progressBar" class="progressBar"></div></div>
   </div>
 
   <div class="card" id="resultCard" style="display:none;">
-
     <h2>🎬 Your Final Video</h2>
-
-    <video
-      id="videoPlayer"
-      controls
-      playsinline
-    ></video>
-
-    <a
-      id="downloadBtn"
-      class="download"
-      href="#"
-      download="cartoonai-video.mp4"
-    >
-      ⬇️ Download Final Video
-    </a>
-
+    <video id="videoPlayer" controls playsinline></video>
+    <a id="downloadBtn" class="download" href="#" download="cartoonai-video.mp4">⬇️ Download Video</a>
   </div>
-
 </div>
 
 <script>
-
-const generateBtn =
-  document.getElementById("generateBtn");
-
-const promptBox =
-  document.getElementById("prompt");
-
-const statusBox =
-  document.getElementById("status");
-
-const progressBar =
-  document.getElementById("progressBar");
-
-const resultCard =
-  document.getElementById("resultCard");
-
-const videoPlayer =
-  document.getElementById("videoPlayer");
-
-const downloadBtn =
-  document.getElementById("downloadBtn");
+const generateBtn = document.getElementById("generateBtn");
+const promptBox = document.getElementById("prompt");
+const statusBox = document.getElementById("status");
+const progressBar = document.getElementById("progressBar");
+const resultCard = document.getElementById("resultCard");
+const videoPlayer = document.getElementById("videoPlayer");
+const downloadBtn = document.getElementById("downloadBtn");
 
 function setStatus(message, type = "") {
-
   statusBox.className = "status";
-
-  if (type === "error") {
-    statusBox.classList.add("error");
-  }
-
-  if (type === "success") {
-    statusBox.classList.add("success");
-  }
-
+  if (type === "error") statusBox.classList.add("error");
+  if (type === "success") statusBox.classList.add("success");
   statusBox.innerHTML = message;
 }
 
 function setProgress(value) {
-  progressBar.style.width =
-    Math.max(0, Math.min(100, value)) + "%";
+  progressBar.style.width = Math.max(0, Math.min(100, value)) + "%";
 }
 
 async function generateVideo() {
-
-  const prompt =
-    promptBox.value.trim();
-
-  if (!prompt) {
-    setStatus(
-      "Please enter a video prompt first.",
-      "error"
-    );
-    return;
-  }
+  const prompt = promptBox.value.trim();
+  if (!prompt) { setStatus("Please enter a video prompt first.", "error"); return; }
 
   generateBtn.disabled = true;
-
   resultCard.style.display = "none";
-
   setProgress(0);
-
-  setStatus(
-    "⏳ Starting your 30–40 second AI video..."
-  );
+  setStatus("⏳ Starting your AI video task...");
 
   try {
+    const response = await fetch("/api/generate-video", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt: prompt })
+    });
 
-    const response = await fetch(
-      "/api/generate-video",
-      {
-        method: "POST",
-
-        headers: {
-          "Content-Type": "application/json"
-        },
-
-        body: JSON.stringify({
-          prompt: prompt
-        })
-      }
-    );
-
-    const text =
-      await response.text();
-
+    const text = await response.text();
     let data;
-
-    try {
-      data = JSON.parse(text);
-    } catch {
-      throw new Error(
-        "Server returned an invalid response: " +
-        text.substring(0, 200)
-      );
-    }
+    try { data = JSON.parse(text); } 
+    catch { throw new Error("Server returned invalid response: " + text.substring(0, 200)); }
 
     if (!response.ok || !data.success) {
-      throw new Error(
-        data.error ||
-        "Could not start video generation."
-      );
+      throw new Error(data.error || "Could not start video generation.");
     }
 
-    setStatus(
-      "🎬 Scene 1/2 started.<br>" +
-      "⏳ Creating the first cinematic clip..."
-    );
+    setStatus("🎬 Scene 1/2 started.<br>⏳ Creating first clip...");
+    const result = await pollJob(data.job_id);
 
-    const result =
-      await pollJob(data.job_id);
-
-    showVideo(result.video_url);
-
+    showVideo(result.video_url, result.scene2_url);
     setProgress(100);
-
-    setStatus(
-      "✅ Your 30–40 second video is ready!",
-      "success"
-    );
+    setStatus("✅ Your 30–40 second video is ready!", "success");
 
   } catch (error) {
-
     console.error(error);
-
     setProgress(0);
-
-    setStatus(
-      "❌ " +
-      escapeHtml(error.message),
-      "error"
-    );
-
+    setStatus("❌ " + escapeHtml(error.message), "error");
   } finally {
-
     generateBtn.disabled = false;
   }
 }
 
 async function pollJob(jobId) {
-
   const maxAttempts = 180;
 
-  for (
-    let attempt = 1;
-    attempt <= maxAttempts;
-    attempt++
-  ) {
-
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     await sleep(10000);
 
-    const response =
-      await fetch(
-        "/api/video-status",
-        {
-          method: "POST",
+    const response = await fetch("/api/video-status", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ job_id: String(jobId) })
+    });
 
-          headers: {
-            "Content-Type": "application/json"
-          },
-
-          body: JSON.stringify({
-            job_id: String(jobId)
-          })
-        }
-      );
-
-    const text =
-      await response.text();
-
+    const text = await response.text();
     let data;
+    try { data = JSON.parse(text); } 
+    catch { throw new Error("Status server returned invalid response."); }
 
-    try {
-      data = JSON.parse(text);
-    } catch {
-      throw new Error(
-        "Status server returned invalid response."
-      );
-    }
-
-    if (!response.ok) {
-
-      throw new Error(
-        data.error ||
-        "Video status request failed."
-      );
-    }
+    if (!response.ok) { throw new Error(data.error || "Video status request failed."); }
 
     if (data.status === "scene1") {
-
-      setProgress(15);
-
-      setStatus(
-        "🎬 Scene 1/2 is generating...<br>" +
-        "⏳ Please wait..."
-      );
-
+      setProgress(25);
+      setStatus("🎬 Scene 1/2 is generating...<br>⏳ Please wait...");
     } else if (data.status === "scene2") {
-
-      setProgress(55);
-
-      setStatus(
-        "🎬 Scene 1 completed.<br>" +
-        "🎬 Scene 2/2 is generating...<br>" +
-        "⏳ Please wait..."
-      );
-
-    } else if (data.status === "merging") {
-
-      setProgress(85);
-
-      setStatus(
-        "🎬 Both scenes completed.<br>" +
-        "🔗 Preparing your final video..."
-      );
-
+      setProgress(60);
+      setStatus("🎬 Scene 1 completed.<br>🎬 Scene 2/2 is generating...<br>⏳ Please wait...");
     } else if (data.status === "completed") {
-
       return {
-        video_url: data.video_url
+        video_url: data.video_url,
+        scene2_url: data.scene2_url
       };
     }
 
-    if (
-      data.status === "failed" ||
-      data.status === "error"
-    ) {
-
-      throw new Error(
-        data.error ||
-        "Video generation failed."
-      );
+    if (data.status === "failed" || data.status === "error") {
+      throw new Error(data.error || "Video generation failed.");
     }
   }
 
-  throw new Error(
-    "Video generation is taking too long. Please try again later."
-  );
+  throw new Error("Video generation is taking too long. Please try again later.");
 }
 
-function showVideo(url) {
-
-  resultCard.style.display =
-    "block";
-
-  videoPlayer.src = url;
-
-  downloadBtn.href = url;
-
+function showVideo(scene1Url, scene2Url) {
+  resultCard.style.display = "block";
+  videoPlayer.src = scene1Url;
+  downloadBtn.href = scene1Url;
   videoPlayer.load();
 
-  resultCard.scrollIntoView({
-    behavior: "smooth"
-  });
+  // Auto Play Scene 2 after Scene 1 finishes
+  if (scene2Url) {
+    videoPlayer.onended = function() {
+      videoPlayer.src = scene2Url;
+      downloadBtn.href = scene2Url;
+      videoPlayer.play();
+    };
+  }
+
+  resultCard.scrollIntoView({ behavior: "smooth" });
 }
 
-function sleep(ms) {
-  return new Promise(
-    resolve => setTimeout(resolve, ms)
-  );
-}
-
+function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
 function escapeHtml(text) {
-
-  const div =
-    document.createElement("div");
-
+  const div = document.createElement("div");
   div.textContent = text;
-
   return div.innerHTML;
 }
 
-generateBtn.addEventListener(
-  "click",
-  generateVideo
-);
-
+generateBtn.addEventListener("click", generateVideo);
 </script>
 
 </body>
