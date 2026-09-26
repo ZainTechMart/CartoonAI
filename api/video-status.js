@@ -24,35 +24,23 @@ export default async function handler(req, res) {
       });
     }
 
-    const jobId = String(
-      req.body?.job_id || ""
-    ).trim();
+    const jobId = String(req.body?.job_id || "").trim();
 
-    if (!jobId) {
-      return res.status(400).json({
-        success: false,
-        error: "job_id is required."
-      });
-    }
-
-    if (!jobId.startsWith("multi_")) {
+    if (!jobId || !jobId.startsWith("multi_")) {
       return res.status(400).json({
         success: false,
         error: "Invalid job_id."
       });
     }
 
-    // Decode job ID
     const encodedJob = jobId.substring(6);
-
     let jobData;
 
     try {
-      jobData = JSON.parse(
-        Buffer
-          .from(encodedJob, "base64url")
-          .toString("utf8")
-      );
+      // Decode Base64URL
+      let base64 = encodedJob.replace(/-/g, "+").replace(/_/g, "/");
+      while (base64.length % 4) { base64 += "="; }
+      jobData = JSON.parse(Buffer.from(base64, "base64").toString("utf8"));
     } catch {
       return res.status(400).json({
         success: false,
@@ -60,13 +48,8 @@ export default async function handler(req, res) {
       });
     }
 
-    const scene1Id = String(
-      jobData?.scene1_id || ""
-    ).trim();
-
-    const scene2Id = String(
-      jobData?.scene2_id || ""
-    ).trim();
+    const scene1Id = String(jobData?.scene1_id || "").trim();
+    const scene2Id = String(jobData?.scene2_id || "").trim();
 
     if (!scene1Id || !scene2Id) {
       return res.status(400).json({
@@ -75,203 +58,96 @@ export default async function handler(req, res) {
       });
     }
 
-    // Check both scenes
-    const scene1 = await checkAgnesVideo(
-      apiKey,
-      scene1Id
-    );
+    const scene1 = await checkAgnesVideo(apiKey, scene1Id);
+    const scene2 = await checkAgnesVideo(apiKey, scene2Id);
 
-    const scene2 = await checkAgnesVideo(
-      apiKey,
-      scene2Id
-    );
-
-    // Scene 1 failed
     if (scene1.failed) {
       return res.status(200).json({
         success: false,
         status: "failed",
-        scene: 1,
-        error:
-          scene1.error ||
-          "Scene 1 generation failed."
+        error: scene1.error || "Scene 1 failed."
       });
     }
 
-    // Scene 2 failed
     if (scene2.failed) {
       return res.status(200).json({
         success: false,
         status: "failed",
-        scene: 2,
-        error:
-          scene2.error ||
-          "Scene 2 generation failed."
+        error: scene2.error || "Scene 2 failed."
       });
     }
 
-    // Scene 1 still processing
+    // Scene 1 processing
     if (!scene1.video_url) {
-
       return res.status(200).json({
-        success: false,
+        success: true,
         pending: true,
         status: "scene1",
-        scene1: "processing",
-        scene2:
-          scene2.video_url
-            ? "completed"
-            : "processing",
         job_id: jobId
       });
     }
 
-    // Scene 2 still processing
+    // Scene 2 processing
     if (!scene2.video_url) {
-
       return res.status(200).json({
-        success: false,
+        success: true,
         pending: true,
         status: "scene2",
-        scene1: "completed",
-        scene2: "processing",
         job_id: jobId
       });
     }
 
-    // Both scenes completed
-    //
-    // At this stage we have both video URLs.
-    // The final single-video merge will be handled
-    // by the next step.
-
+    // BOTH COMPLETED! Return status = completed to Frontend
     return res.status(200).json({
-      success: false,
-      pending: true,
-      status: "merging",
-
+      success: true,
+      pending: false,
+      status: "completed",
+      video_url: scene1.video_url,
       scene1_url: scene1.video_url,
       scene2_url: scene2.video_url,
-
-      scene1: "completed",
-      scene2: "completed",
-
-      job_id: jobId,
-
-      message:
-        "Both scenes are ready. Preparing final video."
+      job_id: jobId
     });
 
   } catch (error) {
-
-    console.error(error);
-
+    console.error("Status Route Error:", error);
     return res.status(500).json({
       success: false,
-      error:
-        error?.message ||
-        "Server error."
+      error: error?.message || "Server error."
     });
   }
 }
 
+async function checkAgnesVideo(apiKey, videoId) {
+  const url = "https://apihub.agnes-ai.com/agnesapi?video_id=" + encodeURIComponent(videoId) + "&model_name=agnes-video-v2.0";
 
-// =====================================
-// CHECK ONE AGNES VIDEO
-// =====================================
-
-async function checkAgnesVideo(
-  apiKey,
-  videoId
-) {
-
-  const url =
-    "https://apihub.agnes-ai.com/agnesapi" +
-    "?video_id=" +
-    encodeURIComponent(videoId) +
-    "&model_name=agnes-video-v2.0";
-
-  const response = await fetch(
-    url,
-    {
-      method: "GET",
-
-      headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Accept": "application/json"
-      }
+  const response = await fetch(url, {
+    method: "GET",
+    headers: {
+      "Authorization": `Bearer ${apiKey}`,
+      "Accept": "application/json"
     }
-  );
+  });
 
-  const rawText =
-    await response.text();
-
+  const rawText = await response.text();
   let data;
 
-  try {
-    data = JSON.parse(rawText);
-  } catch {
-
-    return {
-      failed: true,
-      error:
-        "Agnes returned invalid status response."
-    };
-  }
+  try { data = JSON.parse(rawText); } 
+  catch { return { failed: true, error: "Invalid Agnes status response." }; }
 
   if (!response.ok) {
-
-    return {
-      failed: true,
-      error:
-        data?.error ||
-        data?.message ||
-        "Agnes status request failed."
-    };
+    return { failed: true, error: data?.error || data?.message || "Agnes status failed." };
   }
 
-  const videoUrl =
-    data?.url ||
-    data?.video_url ||
-    data?.videoUrl ||
-    data?.data?.url ||
-    data?.data?.video_url ||
-    data?.data?.videoUrl;
-
-  const status = String(
-    data?.status ||
-    data?.data?.status ||
-    ""
-  ).toLowerCase();
+  const videoUrl = data?.url || data?.video_url || data?.videoUrl || data?.data?.url || data?.data?.video_url || data?.data?.videoUrl;
+  const status = String(data?.status || data?.data?.status || "").toLowerCase();
 
   if (videoUrl) {
-
-    return {
-      failed: false,
-      completed: true,
-      video_url: videoUrl
-    };
+    return { failed: false, completed: true, video_url: videoUrl };
   }
 
-  if (
-    status === "failed" ||
-    status === "error" ||
-    status === "cancelled" ||
-    status === "canceled"
-  ) {
-
-    return {
-      failed: true,
-      error:
-        data?.message ||
-        data?.error ||
-        "Agnes video generation failed."
-    };
+  if (status === "failed" || status === "error" || status === "cancelled") {
+    return { failed: true, error: data?.message || "Agnes video failed." };
   }
 
-  return {
-    failed: false,
-    completed: false,
-    status: status || "processing"
-  };
-        }
+  return { failed: false, completed: false, status: status || "processing" };
+}
