@@ -1,0 +1,24 @@
+{
+  "version": 2,
+  "functions": {
+    "api/*.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "routes": [
+    {
+      "src": "/api/generate-video",
+      "dest": "/api/generate-video.js",
+      "methods": ["POST", "OPTIONS"]
+    },
+    {
+      "src": "/api/video-status",
+      "dest": "/api/video-status.js",
+      "methods": ["POST", "OPTIONS"]
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ]
+}
